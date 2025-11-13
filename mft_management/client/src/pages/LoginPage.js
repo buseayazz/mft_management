@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
@@ -7,7 +7,7 @@ const LoginPage = () => {
     username: '',
     password: '',
   });
-  const { login } = useContext(AuthContext);
+  const { login, isAuthenticated } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const { username, password } = formData;
@@ -17,9 +17,14 @@ const LoginPage = () => {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    await login(username, password);
-    navigate('/dashboard');
+    login(username, password);
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div>
