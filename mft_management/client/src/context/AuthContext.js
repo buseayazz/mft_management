@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext();
 
@@ -10,13 +11,16 @@ const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      // You would typically verify the token with the backend here
-      // For simplicity, we'll just decode it
-      const decoded = JSON.parse(atob(token.split('.')[1]));
-      setUser(decoded.user);
-      setIsAuthenticated(true);
-      localStorage.setItem('token', token);
-      axios.defaults.headers.common['x-auth-token'] = token;
+      try {
+        const decoded = jwtDecode(token);
+        setUser(decoded.user);
+        setIsAuthenticated(true);
+        localStorage.setItem('token', token);
+        axios.defaults.headers.common['x-auth-token'] = token;
+      } catch (error) {
+        console.error('Invalid token');
+        setToken(null);
+      }
     } else {
       localStorage.removeItem('token');
       delete axios.defaults.headers.common['x-auth-token'];
